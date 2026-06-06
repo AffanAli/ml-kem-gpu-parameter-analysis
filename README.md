@@ -186,6 +186,8 @@ $ conda activate mlkem_gpu
 $ conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
 
 $ pip install -r requirements.txt
+
+$ pip install -e .
 ```
 
 ### Setup on Mac Machine
@@ -197,6 +199,8 @@ $ conda activate mlkem_gpu
 $ conda install pytorch torchvision torchaudio -c pytorch
 
 $ pip install -r requirements.txt
+
+$ pip install -e .
 ```
 
 ## Current Status
