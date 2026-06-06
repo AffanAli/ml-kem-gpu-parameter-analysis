@@ -323,7 +323,7 @@ So `384 bytes` is the packed/serialized size, not the normal in-memory `int16` s
 
 ---
 
-## 6. Where Does `KYBER_POLYVECCOMPRESSEDBYTES = 2 × 320` Come From?
+# Where Does `KYBER_POLYVECCOMPRESSEDBYTES = 2 × 320` Come From?
 
 For ML-KEM-512:
 
@@ -388,7 +388,7 @@ KYBER_POLYVECCOMPRESSEDBYTES = 640
 
 ---
 
-## 7. Why is `KYBER_POLYCOMPRESSEDBYTES = 128`?
+# Why is `KYBER_POLYCOMPRESSEDBYTES = 128`?
 
 This is for one compressed polynomial, usually the `v` part of the ciphertext.
 
