@@ -458,11 +458,29 @@ Stored exactly using 12 bits.
 ---
 
 ## 10-bit Compression
+10 bits can represent:
+
+```text
+0 ... 1023
+```
+
+Explanation
+
+<img width="716" height="481" alt="Screenshot 2026-06-06 at 8 39 33 PM" src="https://github.com/user-attachments/assets/33c28b0a-0ca7-4370-ba3d-22464b7235d7" />
 
 
 ---
 
 ## 4-bit Compression
+4 bits can represent:
+
+```text
+0 ... 15
+```
+
+Explanation
+
+<img width="716" height="469" alt="Screenshot 2026-06-06 at 8 40 03 PM" src="https://github.com/user-attachments/assets/a5c884b7-47e6-40fe-8064-2dc85d9571da" />
 
 
 ---
