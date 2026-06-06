@@ -188,6 +188,17 @@ $ conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c n
 $ pip install -r requirements.txt
 ```
 
+### Setup on Mac Machine
+```
+$ conda create -n mlkem_gpu python=3.11
+
+$ conda activate mlkem_gpu
+
+$ conda install pytorch torchvision torchaudio -c pytorch
+
+$ pip install -r requirements.txt
+```
+
 ## Current Status
 
 - [ ] Repository setup
