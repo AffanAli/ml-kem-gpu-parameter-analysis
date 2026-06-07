@@ -198,7 +198,7 @@ def basemul(
     if b.numel() != 2:
         raise ValueError("b must contain exactly 2 coefficients")
 
-    zeta = torch.tensor(
+    zeta = to_tensor(
         zeta,
         dtype=torch.int16,
         device=a.device,
@@ -217,3 +217,42 @@ def basemul(
             r1.to(torch.int16),
         ]
     )
+
+def poly_basemul_montgomery(a: Poly, b: Poly) -> Poly:
+    """
+    Polynomial base multiplication in NTT domain.
+
+    Equivalent to PQClean:
+
+        poly_basemul_montgomery(poly *r, const poly *a, const poly *b)
+
+    Input:
+        a, b: Poly objects already in NTT domain
+
+    Output:
+        Poly object
+    """
+    result = torch.empty(
+        256,
+        dtype=torch.int16,
+        device=a.coeffs.device,
+    )
+
+    zetas = zetas_tensor(device=a.coeffs.device)
+
+    for i in range(256 // 4):
+        zeta = zetas[64 + i]
+
+        result[4 * i : 4 * i + 2] = basemul(
+            a.coeffs[4 * i : 4 * i + 2],
+            b.coeffs[4 * i : 4 * i + 2],
+            zeta,
+        )
+
+        result[4 * i + 2 : 4 * i + 4] = basemul(
+            a.coeffs[4 * i + 2 : 4 * i + 4],
+            b.coeffs[4 * i + 2 : 4 * i + 4],
+            -zeta,
+        )
+
+    return Poly(result)
