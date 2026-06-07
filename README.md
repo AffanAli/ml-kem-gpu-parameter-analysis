@@ -203,6 +203,12 @@ $ pip install -r requirements.txt
 $ pip install -e .
 ```
 
+### Verify the functionality - run all test cases
+```
+$ goto tests
+$ pytest -v -s 
+```
+
 ## Current Status
 
 - [ ] Repository setup

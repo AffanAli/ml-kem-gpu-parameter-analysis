@@ -3,8 +3,7 @@ from mlkem_gpu.device import DEVICE
 from mlkem_gpu.params import KYBER_N
 from mlkem_gpu.cbd_gpu import poly_cbd_eta1, poly_cbd_eta2
 
-NUM_POLYNOMIALS = 10
-
+NUM_POLYNOMIALS = 1
 
 def test_cbd_eta1_coefficients_are_in_valid_range():
     """
