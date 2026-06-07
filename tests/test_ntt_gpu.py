@@ -3,7 +3,8 @@ import torch
 from mlkem_gpu.device import DEVICE
 from mlkem_gpu.params import KYBER_N
 from mlkem_gpu.poly_gpu import Poly
-from mlkem_gpu.ntt_gpu import ntt_coeffs, poly_ntt, basemul
+from mlkem_gpu.poly_gpu import poly_ntt
+from mlkem_gpu.ntt_gpu import ntt_coeffs, basemul
 
 
 def test_ntt_output_shape():

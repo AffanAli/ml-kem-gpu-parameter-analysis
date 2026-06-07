@@ -5,7 +5,6 @@ GPU-based Number Theoretic Transform for ML-KEM-512.
 from __future__ import annotations
 import torch
 from mlkem_gpu.gpu_utils import to_tensor
-from mlkem_gpu.poly_gpu import Poly
 from mlkem_gpu.reduce_gpu import montgomery_reduce, barrett_reduce
 
 
@@ -92,16 +91,6 @@ def ntt_coeffs(r: torch.Tensor) -> torch.Tensor:
     return r
 
 
-def poly_ntt(a: Poly) -> Poly:
-    """
-    Forward NTT for a Poly object.
-    """
-    coeffs = ntt_coeffs(a.coeffs)
-    coeffs = barrett_reduce(coeffs)
-
-    return Poly(coeffs)
-
-
 def invntt_coeffs(r: torch.Tensor) -> torch.Tensor:
     """
     Inverse NTT on one polynomial.
@@ -159,20 +148,6 @@ def invntt_coeffs(r: torch.Tensor) -> torch.Tensor:
     return r
 
 
-def poly_invntt_tomont(a: Poly) -> Poly:
-    """
-    Inverse NTT for a Poly object.
-
-    Equivalent to PQClean:
-
-        poly_invntt_tomont(poly *r) {
-            invntt(r->coeffs);
-        }
-    """
-    coeffs = invntt_coeffs(a.coeffs)
-    return Poly(coeffs)
-
-
 def basemul(
     a: torch.Tensor,
     b: torch.Tensor,
@@ -217,42 +192,3 @@ def basemul(
             r1.to(torch.int16),
         ]
     )
-
-def poly_basemul_montgomery(a: Poly, b: Poly) -> Poly:
-    """
-    Polynomial base multiplication in NTT domain.
-
-    Equivalent to PQClean:
-
-        poly_basemul_montgomery(poly *r, const poly *a, const poly *b)
-
-    Input:
-        a, b: Poly objects already in NTT domain
-
-    Output:
-        Poly object
-    """
-    result = torch.empty(
-        256,
-        dtype=torch.int16,
-        device=a.coeffs.device,
-    )
-
-    zetas = zetas_tensor(device=a.coeffs.device)
-
-    for i in range(256 // 4):
-        zeta = zetas[64 + i]
-
-        result[4 * i : 4 * i + 2] = basemul(
-            a.coeffs[4 * i : 4 * i + 2],
-            b.coeffs[4 * i : 4 * i + 2],
-            zeta,
-        )
-
-        result[4 * i + 2 : 4 * i + 4] = basemul(
-            a.coeffs[4 * i + 2 : 4 * i + 4],
-            b.coeffs[4 * i + 2 : 4 * i + 4],
-            -zeta,
-        )
-
-    return Poly(result)
