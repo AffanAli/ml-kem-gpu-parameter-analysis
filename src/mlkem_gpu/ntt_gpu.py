@@ -100,3 +100,74 @@ def poly_ntt(a: Poly) -> Poly:
     coeffs = barrett_reduce(coeffs)
 
     return Poly(coeffs)
+
+
+def invntt_coeffs(r: torch.Tensor) -> torch.Tensor:
+    """
+    Inverse NTT on one polynomial.
+
+    Input:
+        Tensor shape: (256,)
+
+    Output:
+        Tensor shape: (256,)
+    """
+    r = to_tensor(r, dtype=torch.int16).clone()
+
+    if r.numel() != 256:
+        raise ValueError(f"Inverse NTT expects 256 coefficients, got {r.numel()}")
+
+    r = r.reshape(256)
+
+    zetas = zetas_tensor(device=r.device)
+
+    f = torch.tensor(
+        1441,
+        dtype=torch.int16,
+        device=r.device,
+    )
+
+    k = 127
+    length = 2
+
+    while length <= 128:
+        for start in range(0, 256, 2 * length):
+            zeta = zetas[k]
+            k -= 1
+
+            left_idx = torch.arange(
+                start,
+                start + length,
+                device=r.device,
+            )
+
+            right_idx = left_idx + length
+
+            t = r[left_idx].clone()
+
+            r[left_idx] = barrett_reduce(
+                t.to(torch.int32) + r[right_idx].to(torch.int32)
+            )
+
+            diff = r[right_idx].to(torch.int32) - t.to(torch.int32)
+            r[right_idx] = fqmul(zeta, diff)
+
+        length *= 2
+
+    r = fqmul(r, f)
+
+    return r
+
+
+def poly_invntt_tomont(a: Poly) -> Poly:
+    """
+    Inverse NTT for a Poly object.
+
+    Equivalent to PQClean:
+
+        poly_invntt_tomont(poly *r) {
+            invntt(r->coeffs);
+        }
+    """
+    coeffs = invntt_coeffs(a.coeffs)
+    return Poly(coeffs)
