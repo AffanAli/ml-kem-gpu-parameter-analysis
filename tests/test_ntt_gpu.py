@@ -3,7 +3,7 @@ import torch
 from mlkem_gpu.device import DEVICE
 from mlkem_gpu.params import KYBER_N
 from mlkem_gpu.poly_gpu import Poly
-from mlkem_gpu.ntt_gpu import ntt_coeffs, poly_ntt
+from mlkem_gpu.ntt_gpu import ntt_coeffs, poly_ntt, basemul
 
 
 def test_ntt_output_shape():
@@ -72,3 +72,75 @@ def test_poly_ntt_output_is_centered_range():
 
     assert torch.all(result.coeffs >= -1664)
     assert torch.all(result.coeffs <= 1664)
+
+
+def test_basemul_output_shape():
+    a = torch.tensor(
+        [10, 20],
+        dtype=torch.int16,
+        device=DEVICE,
+    )
+
+    b = torch.tensor(
+        [30, 40],
+        dtype=torch.int16,
+        device=DEVICE,
+    )
+
+    result = basemul(
+        a,
+        b,
+        zeta=-1044,
+    )
+
+    assert result.shape == (2,)
+
+
+def test_basemul_output_device():
+    a = torch.tensor(
+        [10, 20],
+        dtype=torch.int16,
+        device=DEVICE,
+    )
+
+    b = torch.tensor(
+        [30, 40],
+        dtype=torch.int16,
+        device=DEVICE,
+    )
+
+    result = basemul(
+        a,
+        b,
+        zeta=-1044,
+    )
+
+    assert result.device.type == DEVICE.type
+
+
+def test_basemul_known_output():
+    a = torch.tensor(
+        [10, 20],
+        dtype=torch.int16,
+        device=DEVICE,
+    )
+
+    b = torch.tensor(
+        [30, 40],
+        dtype=torch.int16,
+        device=DEVICE,
+    )
+
+    result = basemul(
+        a,
+        b,
+        zeta=-1044,
+    )
+
+    expected = torch.tensor(
+        [-524, 2550],
+        dtype=torch.int16,
+        device=DEVICE,
+    )
+
+    assert torch.equal(result, expected)
