@@ -1,15 +1,18 @@
 """
 GPU polynomial-vector operations for ML-KEM-512.
-
-A polyvec contains KYBER_K polynomials.
-For ML-KEM-512, KYBER_K = 2.
 """
-
 from __future__ import annotations
+
 import torch
 from mlkem_gpu.params import KYBER_K, KYBER_N
-from mlkem_gpu.gpu_utils import to_tensor, zeros, to_cpu_list
 from mlkem_gpu.reduce_gpu import barrett_reduce
+from mlkem_gpu.gpu_utils import to_tensor, zeros, to_cpu_list
+from mlkem_gpu.poly_gpu import (
+    Poly,
+    poly_add,
+    poly_reduce,
+    poly_basemul_montgomery,
+)
 
 
 class PolyVec:
@@ -73,3 +76,32 @@ def polyvec_reduce(a: PolyVec) -> PolyVec:
     Equivalent to PQClean polyvec_reduce().
     """
     return a.clone().reduce()
+
+
+def polyvec_basemul_acc_montgomery(a: PolyVec, b: PolyVec) -> Poly:
+    """
+    Multiply two PolyVecs in NTT domain and accumulate the result.
+
+    Equivalent to PQClean:
+
+        polyvec_basemul_acc_montgomery(poly *r, const polyvec *a, const polyvec *b)
+
+    For ML-KEM-512:
+
+        r = basemul(a[0], b[0]) + basemul(a[1], b[1])
+    """
+
+    r = poly_basemul_montgomery(
+        Poly(a.coeffs[0]),
+        Poly(b.coeffs[0]),
+    )
+
+    for i in range(1, KYBER_K):
+        t = poly_basemul_montgomery(
+            Poly(a.coeffs[i]),
+            Poly(b.coeffs[i]),
+        )
+
+        r = poly_add(r, t)
+
+    return poly_reduce(r)
