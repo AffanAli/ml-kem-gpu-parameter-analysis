@@ -221,3 +221,8 @@ __marimo__/
 .DS_Store
 
 reference
+
+.ipynb_checkpoints/
+*.pyc
+data/
+models/
