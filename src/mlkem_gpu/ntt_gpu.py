@@ -171,3 +171,49 @@ def poly_invntt_tomont(a: Poly) -> Poly:
     """
     coeffs = invntt_coeffs(a.coeffs)
     return Poly(coeffs)
+
+
+def basemul(
+    a: torch.Tensor,
+    b: torch.Tensor,
+    zeta: int | torch.Tensor,
+) -> torch.Tensor:
+    """
+    Equivalent to PQClean basemul().
+
+    Input:
+        a shape = (2,)
+        b shape = (2,)
+
+    Output:
+        shape = (2,)
+    """
+
+    a = to_tensor(a, dtype=torch.int16)
+    b = to_tensor(b, dtype=torch.int16)
+
+    if a.numel() != 2:
+        raise ValueError("a must contain exactly 2 coefficients")
+
+    if b.numel() != 2:
+        raise ValueError("b must contain exactly 2 coefficients")
+
+    zeta = torch.tensor(
+        zeta,
+        dtype=torch.int16,
+        device=a.device,
+    )
+
+    r0 = fqmul(a[1], b[1])
+    r0 = fqmul(r0, zeta)
+    r0 = r0 + fqmul(a[0], b[0])
+
+    r1 = fqmul(a[0], b[1])
+    r1 = r1 + fqmul(a[1], b[0])
+
+    return torch.stack(
+        [
+            r0.to(torch.int16),
+            r1.to(torch.int16),
+        ]
+    )
